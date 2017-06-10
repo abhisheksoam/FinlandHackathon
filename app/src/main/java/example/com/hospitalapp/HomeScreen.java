@@ -2,8 +2,13 @@ package example.com.hospitalapp;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +28,12 @@ public class HomeScreen extends AppCompatActivity {
     NavigationView navigationView;
     DrawerLayout drawerLayout;
 
-    FrameLayout fragment;
+    ViewPager viewPager;
+    TabLayout tabLayout;
+    FloatingActionButton floatingActionButton;
+
+    int total_fragments = 3;
+    String[] tab_titles = {"Tab1","Dashboard","Tab3"};
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,16 +48,40 @@ public class HomeScreen extends AppCompatActivity {
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        fragment = (FrameLayout) findViewById(R.id.fragment);
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
 
         which = getIntent().getIntExtra("WHICH",LoginActivity.DOC_FRAG);
 
-        if(which == LoginActivity.DOC_FRAG)
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new DocFragment()).commit();// load doc fragment;
-        else
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new PersonFragment()).commit();// load person fragment;
-
         initNavigationDrawer();
+
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager()));
+        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(1);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 2)
+                    floatingActionButton.hide();
+                else{
+                    if (floatingActionButton.getVisibility() == View.GONE)
+                        floatingActionButton.show();
+                }
+            }
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // fab is clicked
+            }
+        });
     }
 
     public void initNavigationDrawer() {
@@ -92,5 +126,53 @@ public class HomeScreen extends AppCompatActivity {
         };
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
+    }
+    private class MyAdapter extends FragmentPagerAdapter {
+
+        public MyAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment = null;
+
+            switch (position) {
+                case 0 : fragment = new DummyFragment(); break;
+                case 1 :
+
+                    if(which == LoginActivity.DOC_FRAG){
+                        fragment = new DocFragment();
+                        tab_titles[1] = "DocDash";
+                    }
+                    else{
+                        fragment = new PersonFragment();
+                        tab_titles[1] = "PatientDash";
+                    }
+
+                    break;
+
+                case 2 : fragment = new DummyFragment(); break;
+            }
+
+            return fragment;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+
+            switch (position) {
+                case 0:return tab_titles[0];
+                case 1:return tab_titles[1];
+                case 2:return tab_titles[2];
+            }
+
+            return getString(R.string.app_name);
+        }
+
+        @Override
+        public int getCount() {
+            return total_fragments;
+        }
     }
 }

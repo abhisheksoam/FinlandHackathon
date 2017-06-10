@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/button_theme_selected_sans_corner_radius"
+          android:state_selected="true"/>
+    <item android:drawable="@drawable/button_theme_pressed_sans_corner_radius"
+          android:state_pressed="true"/>
+    <item android:drawable="@drawable/button_theme_normal_sans_corner_radius"/>
+
+</selector>
